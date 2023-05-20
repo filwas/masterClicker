@@ -3,7 +3,9 @@
   "name": "Element Click Tracker",
   "version": "1.0",
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "scripting",
+    "tabs"
   ],
   "background": {
     "service_worker": "background.js"

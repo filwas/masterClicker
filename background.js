@@ -1,47 +1,48 @@
-// Listen for messages from the content script
 chrome.runtime.onMessage.addListener((message) => {
     if (message.elementClicked) {
-      // Perform desired actions with the target element
-
-        var className = message.elementClicked.match(/class="(.+?)"/)
-                            
-
-        console.log(className[0].replace(/^.{7}/).replace(".$"));
+        var className = message.elementClicked.match(/class="([^"]+)"/)[1]
+        console.log("CL=",className);
         console.log(message.elementClicked);
-      // You can send this information to your server, store it locally, or perform any other operations.
 
-      let queryOptions = {
-        currentWindow: true,
-        url: "https://cockpit-sta.airhelp.com/*"
+        let queryOptions = {
+          currentWindow: true,
+          url: "https://cockpit-sta.airhelp.com/*"
         }   
-
-        /*chrome.tabs.query(queryOptions).then(
-            (fulfill) => {
-                fulfill.forEach(tab => {
-                    let id = tab.id;
-                    chrome.scripting.executeScript({
-                        target: {tabId: id},
-                        func: () => {
-                            let eleID = message.elementClicked.id;
-                            if (eleID) {
-                                document.getElementById(eleID).click();
-                                return;
-                            } else {
-                                let eleClass = message.elementClicked.className;
-                                document.getElementsByClassName(eleClass)[0].click();
-                                return;
-                            }
+        if (BUTTONLIST.includes(className)) {
+            chrome.tabs.query(queryOptions).then(
+                (fulfill) => {
+                    console.log(fulfill)
+                    fulfill.forEach(tab => {
+                        let id = tab.id;
+                        console.log(fulfill[0].id == id)
+                        if (id != fulfill[0].id && tab.status=="complete") {
+                            chrome.scripting.executeScript({
+                                target: {tabId: id},
+                                func: (className) => {
+                                    console.log("AHAHHA");
+                                    document.getElementsByClassName(className)[0].click();
+                                    return;
+                                },
+                                args: [className]
+                            });
                         }
                     });
-                });
-            }
-
-        )*/
-
-
-
+                }
+            );
+        }
+    }               
+});
 
 
-    }
-  });
-  
+
+BUTTONLIST = [
+    //"start-claim-assessment-test", // Start claim assessment button
+    "close-test", // close button
+    //"btn btn-lg btn-success pull-right", //green accept button on many pages
+    "perform-airline-assessment-test", // perform airline assessment
+    "collect-compensation-test", //collect compensation
+    "btn btn-primary", //add compensation
+    "btn btn-lg btn-success", //collect compensation green button
+    "submit-to-payout-test", //submit to payout
+    "btn btn-primary btn-lg", // send to payout
+]
